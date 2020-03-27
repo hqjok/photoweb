@@ -1,0 +1,143 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+
+<!--head-->
+<head th:fragment="head(title,links,style)">
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title th:text="${title}"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/home/vendor/font-awesome-4.7.0/css/font-awesome.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/home/css/detail.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/home/vendor/layui/css/layui.css}">
+    <th:block th:replace="${links}" />
+    <th:block th:replace="${style}"/>
+</head>
+<!--end head-->
+
+
+<!--script-->
+<th:block th:fragment="script(script)">
+    <!-- SCRIPT -->
+    <script type="text/javascript" th:src="@{/home/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery.scrollTo.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery.localScroll.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery-animate-css-rotate-scale.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/fastclick.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery.flip.min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery.animate-colors-min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/js/jquery.animate-shadow-min.js}"></script>
+    <script type="text/javascript" th:src="@{/home/vendor/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/home/vendor/wangEditor.min.js}"></script>
+    <script>
+        $.localScroll();
+        $(".cache").delay(100).fadeOut(500);
+
+        $("#wrapper-header").delay(150).animate({ opacity: '1', width: '100%' }, 500);
+        $("#wrapper-navbar").delay(200).animate({ opacity: '1', height: '60px' }, 500);
+
+        $("#main-container-image").delay(250).animate({ opacity: '1' }, 500);
+
+        //控制footer
+        var scrollTop = $("#wrapper-copyright").offset().top - $("#wrapper-copyright").scrollTop();
+        if(scrollTop < 250){
+            $("#wrapper-copyright").css("position", "fixed").css("bottom", "0px");
+        }
+    </script>
+    <!-- script for menu -->
+    <th:block th:replace="${script}"/>
+</th:block>
+<!--end script-->
+
+<!--header and navigation-->
+<th:block th:fragment="header(areaId,search)">
+    <a name="ancre"></a>
+
+    <!-- CACHE -->
+    <div class="cache"></div>
+
+    <!-- HEADER -->
+
+    <div id="wrapper-header">
+        <div id="main-header" class="object">
+            <a href="index.html">
+                <div id="logo">
+                    <!-- <img src="img/logo-burst.svg" alt="logo burstfly" height="38" width="90"> -->
+                </div>
+            </a>
+            <div id="main_tip_search">
+                <form action="/go/to/search/1" method="get">
+                    <input type="text" th:value="${search != null}? ${search}:''" name="searchContent" id="tip_search_input" list="search" autocomplete=off required>
+                    <input type="text" name="areaId" th:value="${areaId}" hidden="hidden">
+                    <input type="submit" hidden>
+                </form>
+            </div>
+            <div id="stripes"></div>
+        </div>
+    </div>
+</th:block>
+<!--header and navigation-->
+
+<!--navbar-->
+<div id="wrapper-navbar" th:fragment="navbar(divs)">
+    <div class="navbar object">
+        <th:block th:replace="${divs}"></th:block>
+        <div id="wrapper-bouton-icon">
+            <a href="/backup/go/to/index">
+                <div class="oldies object" style="float: right;margin-left: 20px;color: rgb(50, 50, 50);">
+                    后台
+                </div>
+            </a>
+            <a href="/go/to/personinfo">
+                <div class="oldies object" style="float: right;margin-left: 20px;color: rgb(50, 50, 50);">
+                    个人中心
+                </div>
+            </a>
+            <a href="/go/to/infopublish">
+                <div class="oldies object" style="float: right;margin-left: 20px;color: rgb(50, 50, 50);">
+                    发布文章
+                </div>
+            </a>
+            <a href="/go/to/infopublish">
+                <div class="oldies object" style="float: right;margin-left: 20px;color: rgb(50, 50, 50);">提问</div>
+            </a>
+            <a href="/go/to/login" th:if="${session.memberPOForFrontend} == null">
+                <div class="oldies object" style="float: right;margin-left: 20px;color: rgb(50, 50, 50);">登录</div>
+            </a>
+        </div>
+    </div>
+</div>
+<!--navbar-->
+
+<!--footer-->
+<div id="wrapper-copyright" th:fragment="footer" >
+    <div class="copyright">
+        <div class="copy-text object" style="width: 100%">
+            华商图片交流网站
+        </div>
+    </div>
+</div>
+<!--footer-->
+
+
+<!--评论区用递归的方法进行显示-->
+<th:block th:fragment="commentChild(parentComment, detailInfo)" th:each="child:${parentComment.commentsPOList}">
+    <div class="comment-item in-comment" comment-status=true th:attr="parentid=${child.id}">
+        <img th:src="${child.memberPO.headpicPath}" />
+        <div class="comment-info">
+            <a class="comment-time" th:text="${#dates.format(child.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-01-01 00:00:00</a>
+            <a class="user-name" th:text="${child.memberPO.username}">用户B</a>
+            <span th:if="${detailInfo.userId} == ${child.userId}">(作者)</span>
+            <a class="user-replay" >回复 [[${parentComment.memberPO.username}]]</a>
+            <span th:if="${detailInfo.userId} == ${parentComment.userId}">(作者)</span>
+            <a class="user-comment" th:text="${child.content}">用户的评论内容</a>
+        </div>
+    </div>
+    <th:block th:unless="${#lists.isEmpty(child.commentsPOList)}" th:replace="this::commentChild(${child}, ${detailInfo})"></th:block>
+</th:block>
+
+
+
+<!--评论区用递归的方法进行显示-->
+

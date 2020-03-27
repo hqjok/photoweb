@@ -1,0 +1,331 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html>
+
+<head th:insert="~{commons/frontendpart::head('发布信息',~{},~{})}"></head>
+
+<body>
+
+<th:block th:insert="~{commons/frontendpart::header(2, null)}"></th:block>
+
+<!-- NAVBAR -->
+
+<div th:insert="~{commons/frontendpart::navbar(~{::div[id='wrapper-sorting']})}">
+        <div id="wrapper-sorting">
+            <div id="wrapper-title-1">
+                <a th:href="@{/go/to/index/1}">
+                    <div class="top-rated object">返回首页</div>
+                </a>
+            </div>
+        </div>
+</div>
+
+<div id="wrapper-container">
+    <div class="acticle-public-container">
+        <div class="content-info">
+            <form class="layui-form" action="">
+                <span class="hidden" id="articleId" th:value="${articleId}"></span>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <input type="text" name="title" required lay-verify="required" placeholder="请输入标题"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <select name="type" lay-filter="articleType" aria-placeholder="选择发布类型"
+                                lay-verify="required">
+                            <option value="">选择发布类型</option>
+                            <option value="2">图片</option>
+                            <option value="3">文章</option>
+                            <option value="4">提问</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item" id="head_pic" style="display: none;">
+                    <div class="layui-input-block"  >
+                        <button type="button" onclick="javascript:$('input[id=uploadFileImage]').click();">添加标题题图</button><br>
+                        <img id="title-image-box"/>
+                        <input style="display: none;" type="file" id="uploadFileImage" name="titleImage" value="添加题图" />
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <div class="layui-input-block">
+                        <div id="articleContent" style="width: 100%;height: 500px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text" style="display: none;" id="uploadFileContainer">
+                    <div class="layui-input-block">
+                        <div class="layui-upload">
+                            <button type="button" style="background-color: rgb(74, 74, 74);"
+                                    class="layui-btn layui-btn-normal" id="testList">选择多文件</button>
+                            <div class="layui-upload-list">
+                                <table class="layui-table">
+                                    <thead>
+                                    <tr>
+                                        <th>文件名</th>
+                                        <th>大小</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="demoList"></tbody>
+                                </table>
+                            </div>
+                            <button type="button" style="background-color: rgb(52, 52, 52);" class="layui-btn"
+                                    id="testListAction">开始上传</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block" style="text-align: center;">
+                        <button class="layui-btn" style="background-color: rgb(74, 74, 74);" lay-submit
+                                lay-filter="formDemo">立即发布</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div th:insert="~{commons/frontendpart::footer}"></div>
+
+</div>
+
+
+
+<th:block th:insert="~{commons/frontendpart::script(~{::script})}">
+    <script>
+        $(document).ready(function () {
+
+            //获取图片  加载在题图的img里面
+            $("#uploadFileImage").change(function (e) {
+                let windowURL = window.URL || window.webkitURL;
+                let imgURL = windowURL.createObjectURL(e.currentTarget.files[0]);
+                window.titleImage = e.currentTarget.files[0]//把图片暴露到全局作用域中
+                $('#title-image-box').attr('src', imgURL)
+                $('#title-image-box').attr('width', '500px')
+                $('#title-image-box').attr('height', '250px')
+            })
+
+
+            layui.use('form', function () {
+                let form = layui.form
+                form.on('select(articleType)', function (data) {
+                    switch (data.value) {
+                        case '3':
+                            $('#uploadFileContainer').css('display', 'block')
+                            $('#head_pic').css('display', 'block')
+                            break;
+                        case '4':
+                            $('#uploadFileContainer').css('display', 'none')
+                            $('#head_pic').css('display', 'none')
+                            break;
+                        case '2':
+                            $('#uploadFileContainer').css('display', 'block')
+                            $('#head_pic').css('display', 'block')
+                            break;
+                            break;
+                        default:
+                            $('#uploadFileContainer').css('display', 'none')
+                            $('#head_pic').css('display', 'none')
+                            break;
+                            break;
+                    }
+                })
+                //表单提交
+                form.on('submit(formDemo)', function (data) {
+                    layer.msg('提交中....', {time: 0,shade:0.5})
+                    delete data.field.file
+                    let submitData = new FormData()
+                    submitData.append('title', data.field.title);
+                    submitData.append('description', window.editor.txt.html());
+                    submitData.append('areaId', data.field.type);
+                    if(data.field.type != 4){
+                        submitData.append('fileId', $("#articleId").attr("value"));
+                        submitData.append('headpic', window.titleImage || '')
+                    }
+                    console.log(submitData.get("title"));
+                    console.log(submitData.get("description"));
+                    console.log(submitData.get("areaId"));
+                    console.log(submitData.get("fileId"));
+                    console.log(submitData.get("headpic"));
+
+                    if(data.field.type == 4){
+                        $.ajax({
+                            url: 'http://localhost:8080/question/add',
+                            type: 'POST',
+                            cache: false,
+                            data: submitData,
+                            contentType: false,//此项不能去掉
+                            processData: false,//此项不能去掉
+                            success: function (res) {
+                                console.log(res);
+                                layer.close(1)
+                                if(res.code == 1){
+                                    layer.msg('发布成功！');
+                                    window.location.href = "http://localhost:8080/go/to/question/1"
+                                }else{
+                                    layer.msg('发布失败！');
+
+                                }
+
+                            },
+                            error: function (err) {
+                                console.log(err);
+                                layer.close(1)
+                                layer.msg('发布失败！');
+                            }
+                        })
+                    }else{
+                        $.ajax({
+                            url: 'http://localhost:8080/article/add',
+                            type: 'POST',
+                            cache: false,
+                            data: submitData,
+                            contentType: false,//此项不能去掉
+                            processData: false,//此项不能去掉
+                            success: function (res) {
+                                console.log(res);
+                                layer.close(1)
+                                if(res.code == 1){
+                                    layer.msg('发布成功！');
+                                    console.log(res.articleType)
+                                    if(res.articleType == 2){
+                                        window.location.href = "http://localhost:8080/go/to/index/1"
+                                    }else {
+                                        window.location.href = "http://localhost:8080/go/to/article/1"
+                                    }
+                                }
+
+                            },
+                            error: function (err) {
+                                console.log(err);
+                                layer.close(1)
+                                layer.msg('发布失败！');
+                            }
+                        })
+                    }
+
+                    return false;
+                });
+            });
+            /**
+             * 上传接口返回格式
+             * {
+                "code": 0
+                ,"msg": ""
+                ,"data": {
+                    "src": "http://cdn.layui.com/123.jpg"
+                }
+            }
+             *
+             *
+             * */
+            layui.use('upload', function () {
+                let upload = layui.upload
+                let articleId = $("#articleId").attr("value");
+                var demoListView = $('#demoList')
+                    , uploadListIns = upload.render({
+                    elem: '#testList'
+                    , url: 'http://localhost:8080/sharingfileupload?articleId=' + articleId //改成自己的上传接口
+                    , accept: 'file'
+                    , multiple: true
+                    , auto: false
+                    , bindAction: '#testListAction'
+                    , choose: function (obj) {
+                        var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                        //读取本地文件
+                        obj.preview(function (index, file, result) {
+                            var tr = $(['<tr id="upload-' + index + '">'
+                                , '<td>' + file.name + '</td>'
+                                , '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>'
+                                , '<td>等待上传</td>'
+                                , '<td>'
+                                , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                                , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                                , '</td>'
+                                , '</tr>'].join(''));
+
+                            //单个重传
+                            tr.find('.demo-reload').on('click', function () {
+                                obj.upload(index, file);
+                            });
+                            //删除
+                            tr.find('.demo-delete').on('click', function () {
+                                delete files[index]; //删除对应的文件
+                                tr.remove();
+                                uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                            });
+                            demoListView.append(tr);
+                        });
+                    }
+                    , done: function (res, index, upload) {
+                        if (res.code == 1) { //上传成功
+                            // console.log(res.articleId);
+                            var tr = demoListView.find('tr#upload-' + index)
+                                , tds = tr.children();
+                            tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                            tds.eq(3).html(''); //清空操作
+                            return delete this.files[index]; //删除文件队列已经上传成功的文件
+                        }
+                        this.error(index, upload);
+                    }
+                    , error: function (index, upload) {
+                        var tr = demoListView.find('tr#upload-' + index)
+                            , tds = tr.children();
+                        tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                        tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                    }
+                });
+            })
+            setTimeout(() => {
+                initEditor()
+            }, 1000);
+
+        });
+        //创建富文本实例
+        function initEditor() {
+            var E = window.wangEditor
+            window.editor = new E('#articleContent')
+            //初始化菜单选项
+            editor.customConfig.menus = [
+                'head',  // 标题
+                'bold',  // 粗体
+                'fontSize',  // 字号
+                'fontName',  // 字体
+                'italic',  // 斜体
+                'underline',  // 下划线
+                'strikeThrough',  // 删除线
+                'foreColor',  // 文字颜色
+                'backColor',  // 背景颜色
+                'link',  // 插入链接
+                'list',  // 列表
+                'justify',  // 对齐方式
+                'quote',  // 引用
+                'emoticon',  // 表情
+                'image',  // 插入图片
+                'table',  // 表格
+                'undo',  // 撤销
+                'redo'  // 重复
+            ]
+            //图片上传的url
+            editor.customConfig.uploadImgServer = 'http://localhost:8080/upload';
+            editor.customConfig.uploadImgHeaders = {
+                'enctype': 'multipart/form-data'
+            };
+            editor.customConfig.uploadFileName = 'file';
+            editor.create()
+        }
+    </script>
+</th:block>
+
+
+
+
+
+</body>
+
+
+</html>

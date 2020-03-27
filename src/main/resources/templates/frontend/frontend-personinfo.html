@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html>
+
+<head th:insert="~{commons/frontendpart::head('个人中心',~{::link},~{})}">
+	<link rel="stylesheet" type="text/css" th:href="@{/home/style.css}">
+</head>
+
+<body>
+
+<th:block th:insert="~{commons/frontendpart::header(2, null)}"></th:block>
+
+	<!-- NAVBAR -->
+
+<div th:insert="~{commons/frontendpart::navbar(~{::div[id='wrapper-sorting']})}">
+	<div id="wrapper-sorting">
+		<div id="wrapper-title-1">
+			<a th:href="@{/go/to/index/1}">
+				<div class="top-rated object">返回首页</div>
+			</a>
+		</div>
+	</div>
+</div>
+
+	<div id="wrapper-container">
+
+		<div class="container object">
+
+			<div class="person-info-container">
+				<div class="user-img-box">
+					<img title="点击更换头像" style="cursor: pointer;" id="headpicPath" th:src="${memberDetail.headpicPath}" width="150px" height="150px" />
+					<form id="headpic-form" action="/member/upload" method="post" enctype="multipart/form-data" hidden>
+						<input id="file" type="file" name="file" multiple/>
+						<input id="headsubmit" type="submit" value="上传"/>
+					</form>
+				</div>
+				<div class="user-info-box">
+					<h4 th:text="${memberDetail.username}"></h4>
+					<p th:text="${memberDetail.message}"></p>
+					<p class="sub" th:text="${memberDetail.sex} + ' ' + ${memberDetail.address}"></p>
+					<div class="edit-botton">
+						<button type="button" onclick="_dialogStatus(true)" class="layui-btn layui-btn-sm">
+							<i class="layui-icon">&#xe716;</i>
+						</button>
+						<button type="button" class="layui-btn layui-btn-sm" onclick="javasript:window.location.href='/member/logout'"
+								style="margin-left: -3px">
+							<i class="layui-icon layui-icon-logout"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="user-action" id="user-action">
+				<a class="tab active">文章</a>
+				<a class="tab">图片</a>
+				<a class="tab">提问</a>
+			</div>
+
+
+			<div id="main-container-image"
+				style="background-color: rgb(240, 240, 240);margin-top: 0;min-height: 700px;">
+
+				<section class="work" id="artcle-container" th:if="${memberDetail.articlePOList != null }">
+
+					<figure class="white"
+							th:onclick="'javascript:window.location.href=\'/go/to/article/detail/'+${article.areaId} + '/' + ${article.id}+'\''"
+							th:each="article:${memberDetail.articlePOList}">
+						<a >
+							<img th:src="${article.headPic}" alt="" />
+							<dl>
+								<dt th:text="${article.title}"></dt>
+								<dd th:with="str=${article.description}"
+									th:text="${#strings.length(str.replaceAll('<.*?>', ''))>79}?${str.replaceAll('<.*?>', '').substring(0, 79)} + '...':${str.replaceAll('<.*?>', '')}">Symphony is a responsive one page website template designed with sketches and coded
+									</dd>
+							</dl>
+						</a>
+						<div id="wrapper-part-info">
+							<div class="part-info-image"><img th:src="@{/images/icon-font.svg}" alt="" width="28px" height="28px" />
+							</div>
+							<div id="part-info" th:text="${article.title}"></div>
+						</div>
+					</figure>
+
+				</section>
+
+				<section class="work" id="phone-container" th:if="${memberDetail.imageList != null }" style="display: none;">
+					<figure class="white" th:each="article:${memberDetail.imageList}">
+						<a th:href="@{'/go/to/article/detail/'+${article.areaId} + '/' + ${article.id}}">
+							<img th:src="${article.headPic}" alt="" />
+							<dl>
+								<dt th:text="${article.title}"></dt>
+								<dd th:with="str=${article.description}"
+									th:text="${#strings.length(str.replaceAll('<.*?>', ''))>79}?${str.replaceAll('<.*?>', '').substring(0, 79)} + '...':${str.replaceAll('<.*?>', '')}">
+									</dd>
+							</dl>
+						</a>
+						<div id="wrapper-part-info">
+							<div class="part-info-image"><img th:src="@{/images/icon-photo.svg}" alt="" width="28px" height="28px" />
+							</div>
+							<div id="part-info" th:text="${article.title}"></div>
+						</div>
+					</figure>
+
+				</section>
+
+				<section class="work" id="answer-container" th:if="${memberDetail.questionPOList != null }" style="display: none;">
+					<figure class="white" th:each="question:${memberDetail.questionPOList}">
+						<a th:href="@{'/go/to/question/detail/'+${question.id}}">
+							<dl class="questionBox">
+								<dt th:text="${question.title}"></dt>
+								<dd th:with="str=${question.description}"
+									th:text="${#strings.length(str.replaceAll('<.*?>', ''))>71}?${str.replaceAll('<.*?>', '').substring(0, 71)} + '...':${str.replaceAll('<.*?>', '')}">
+								</dd>
+							</dl>
+						</a>
+						<div id="wrapper-part-info">
+							<div class="part-info-image"><img th:src="@{/images/icon-search.svg}" alt="" width="28px" height="28px" />
+							</div>
+							<div class="article-status">
+								<i class="fa fa-commenting-o" aria-hidden="true" th:text="${question.commentCount}"> </i>
+							</div>
+						</div>
+					</figure>
+
+				</section>
+			</div>
+
+		</div>
+		<div class="list-dialog" id="list-dialog">
+			<div class="dialog-container">
+				<div class="dialog-hearder">
+					<a id="dialogTitle">修改信息</a>
+					<i class="layui-icon layui-icon-close" onclick="_dialogStatus()"></i>
+				</div>
+				<div class="dialog-content">
+					<form class="layui-form" id="editInfoData">
+						<input hidden name="id" th:value="${memberDetail.id}">
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								<span class="we-red">*</span>个人名称
+							</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" th:value="${memberDetail.username}" required="" lay-verify="required" autocomplete="off"
+									class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								<span class="we-red">*</span>性别
+							</label>
+							<div class="layui-input-inline">
+
+								<select name="sex" class="layui-select" required="" lay-verify="required" autocomplete="off">
+									<option value="男" th:selected="${memberDetail.sex == '男'}">男</option>
+									<option value="女" th:selected="${memberDetail.sex == '女'}">女</option>
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								<span class="we-red">*</span>个人备注
+							</label>
+							<div class="layui-input-inline">
+								<input type="text" th:value="${memberDetail.message}" name="message" id="fromStartTime" required="" lay-verify="required"
+									autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								<span class="we-red">*</span>邮箱
+							</label>
+							<div class="layui-input-inline">
+								<input type="text" name="email" th:value="${memberDetail.email}" required="" lay-verify="required" autocomplete="off"
+									class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">
+								<span class="we-red">*</span>班级
+							</label>
+							<div class="layui-input-inline">
+								<input type="text" name="address" th:value="${memberDetail.address}" required="" lay-verify="required" autocomplete="off"
+									class="layui-input">
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label for="L_repass" class="layui-form-label"></label>
+							<button class="layui-btn" style="background-color: rgb(77, 77, 77);" lay-submit lay-filter="formDemo">修改</button>
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+		<div th:insert="~{commons/frontendpart::footer}"></div>
+
+	</div>
+
+	<!-- SCRIPT -->
+
+<th:block th:insert="~{commons/frontendpart::script(~{::script})}">
+	<script>
+		$('#user-action').bind('click', e => {
+			switch (e.target.text) {
+		case '文章':
+			bindTabActive(e.target.parentNode, '文章')
+			$('#artcle-container').css('display', 'block')
+			$('#phone-container').css('display', 'none')
+			$('#answer-container').css('display', 'none')
+			break;
+		case '图片':
+			bindTabActive(e.target.parentNode, '图片')
+			$('#artcle-container').css('display', 'none')
+			$('#phone-container').css('display', 'block')
+			$('#answer-container').css('display', 'none')
+			break
+		case '提问':
+			bindTabActive(e.target.parentNode, '提问')
+			$('#artcle-container').css('display', 'none')
+			$('#phone-container').css('display', 'none')
+			$('#answer-container').css('display', 'block')
+			break
+		default:
+			break;
+		}
+		})
+
+		layui.use(['form'], function () {
+			var form = layui.form;
+			//提交表单
+			form.on('submit(formDemo)', function (data) {
+
+				$.post("/frontend/member/modify", $("#editInfoData").serialize(), function (data) {
+					window.location.href="/go/to/personinfo";
+				});
+				return false;
+			});
+
+		});
+		function bindTabActive(parentNode, target) {
+			$(parentNode).children('.tab').each((index, element) => {
+				if (element.text === target) {
+				$(element).addClass('active')
+			} else {
+				$(element).removeClass('active')
+			}
+		})
+		}
+
+		$("#headpicPath").click(function () {
+			$("#file").click()
+		})
+
+		$("#file").on("change",function(){
+			$("#headsubmit").click();
+		});
+
+
+		function _dialogStatus(flag) {
+			if (flag) {
+				$('#list-dialog').css('display', 'block')
+			} else {
+				$('#list-dialog').css('display', 'none')
+			}
+		}
+	</script>
+</th:block>
+
+</body>
+
+</html>

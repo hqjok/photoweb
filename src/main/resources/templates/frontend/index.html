@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html>
+
+<head th:insert="~{commons/frontendpart::head('首页',~{::link},~{})}">
+    <link th:href="@{/home/style.css}" rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+
+<th:block th:insert="~{commons/frontendpart::header(2, null)}"></th:block>
+
+<!-- NAVBAR -->
+
+
+<div th:insert="~{commons/frontendpart::navbar(~{::div[id='wrapper-sorting']})}">
+    <div id="wrapper-sorting">
+        <div id="wrapper-title-1" onclick="javascript:window.location.href='/go/to/index/1'">
+            <div class="top-rated object menu-active">图片</div>
+        </div>
+
+        <div id="wrapper-title-2" onclick="javascript:window.location.href='/go/to/article/1'">
+            <a href="#">
+                <div class="recent object">文章</div>
+            </a>
+        </div>
+
+        <div id="wrapper-title-3" onclick="javascript:window.location.href='/go/to/question/1'">
+            <a href="#">
+                <div class="oldies object">问答</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="wrapper-container">
+
+    <div class="container object">
+
+        <div id="main-container-image">
+
+            <section class="work">
+
+                <figure class="white" th:each="article:${articles.getList()}">
+                    <a th:href="@{'/go/to/article/detail/'+${article.areaId} + '/' + ${article.id}}">
+                        <img th:src="${article.headPic}" />
+                        <dl>
+                            <dt th:text="${article.title}"></dt>
+                            <dd th:with="str=${article.description}"
+                                th:text="${#strings.length(str.replaceAll('<.*?>', ''))>79}?${str.replaceAll('<.*?>', '').substring(0, 79)} + '...':${str.replaceAll('<.*?>', '')}"
+                            ></dd>
+                        </dl>
+                    </a>
+                    <div id="wrapper-part-info">
+                        <div class="part-info-image">
+                            <img th:src="@{/images/icon-photo.svg}" alt="" width="28" height="28">
+                        </div>
+                        <div id="part-info" th:text="${article.memberPO.username}"></div>
+                        <div class="article-status">
+                            <i class="fa fa-commenting-o" aria-hidden="true" th:text="${article.commentCount}"> </i>
+                        </div>
+                    </div>
+                </figure>
+
+            </section>
+
+        </div>
+
+    </div>
+
+    <div id="wrapper-oldnew">
+        <div class="oldnew">
+            <div class="wrapper-oldnew-prev">
+                <a id="oldnew-prev" th:href="${articles.getPrePage()==0}?'javascript:return false;':${articles.getPrePage()}"></a>
+            </div>
+            <div class="wrapper-oldnew-next">
+                <a id="oldnew-next" th:href="${articles.getNextPage() == 0} ? 'javascript:return false' : ${articles.getNextPage()}"></a>
+            </div>
+        </div>
+    </div>
+
+    <div th:insert="~{commons/frontendpart::footer}"></div>
+
+</div>
+
+<!-- SCRIPT -->
+<th:block th:insert="~{commons/frontendpart::script(~{::script})}">
+    <script type="text/javascript" th:src="@{/home/js/main.js}"></script>
+</th:block>
+
+</body>
+
+</html>

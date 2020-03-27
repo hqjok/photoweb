@@ -1,0 +1,92 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--左侧导航-->
+<aside class="lyear-layout-sidebar" th:fragment="leaf(activeNag)">
+
+    <!-- logo -->
+    <div id="logo" class="sidebar-header">
+        <a href="index.html"></a>
+    </div>
+    <div class="lyear-layout-sidebar-scroll">
+
+        <nav class="sidebar-main">
+            <ul class="nav nav-drawer">
+                <li class="nav-item" th:classappend="${activeNag} == 1 ? 'active':''"><a href="/backup/member/manage/1"><i class="mdi mdi-contacts"></i>
+                    用户管理</a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNag} == 2 ? 'active':''"><a href="/backup/image/manage/1"><i class="mdi mdi-receipt"></i>
+                图片管理</a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNag} == 3 ? 'active':''"><a href="/backup/article/manage/1"><i class="mdi mdi-receipt"></i>
+                文章管理</a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNag} == 4 ? 'active':''"><a href="/backup/question/manage/1"><i class="mdi mdi-receipt"></i>
+                    问题管理</a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNag} == 5 ? 'active':''"><a href="/backup/comment/manage/1"><i class="mdi mdi-receipt"></i>
+                评论管理</a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNag} == 6 ? 'active':''"><a href="/backup/sharingfile/manage/1"><i class="mdi mdi-receipt"></i>
+                    分享文件管理</a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+</aside>
+<!--End 左侧导航-->
+
+
+<!--header-->
+<head th:fragment="head">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>用户信息管理</title>
+    <link rel="icon" type="image/icon" href="/images/favicon.ico"/>
+    <link th:href="@{/backage/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/backage/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/backage/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+    <link th:href="@{/backage/css/style.min.css}" rel="stylesheet">
+</head>
+
+
+<!--头部信息-->
+<header class="lyear-layout-header">
+
+    <nav class="navbar navbar-default" th:fragment="header(var)">
+        <div class="topbar">
+
+            <div class="topbar-left">
+                <div class="lyear-aside-toggler">
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                </div>
+                <span class="navbar-page-title" th:text="${var}">  </span>
+            </div>
+
+            <ul class="topbar-right">
+                <li class="dropdown dropdown-profile">
+                    <a href="javascript:void(0)" data-toggle="dropdown">
+                        <span th:if="${session.memberPO} != null">[[${session.memberPO.username}]]</span><span
+                            class="caret"></span></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+
+                        <li><a href="/backup/member/logout"><i class="mdi mdi-logout-variant"></i> 退出登录</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+
+</header>
+<!--End 头部信息-->
+
+<!-- body -->
+<div class="lyear-layout-web" th:fragment="body">
+    <div class="lyear-layout-container">
+    </div>
+</div>

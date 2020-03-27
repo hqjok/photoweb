@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh">
+
+<head th:insert="~{commons/part::head}"></head>
+
+<body data-theme="dark"  data-logobg="default"  data-headerbg="default"  data-sidebarbg="default">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <header th:insert="~{commons/part::header(var='用户信息管理')}"></header>
+
+        <aside th:insert="~{commons/part::leaf(activeNag =1)}"></aside>
+
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-toolbar clearfix">
+
+                                <div class="toolbar-btn-action">
+                                    <a class="btn btn-primary m-r-5" href="#!" onclick="addInfoData()"><i
+                                            class="mdi mdi-plus"></i> 新增</a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>编号</th>
+                                            <th>登录名</th>
+                                            <th>登录密码</th>
+                                            <th>用户名称</th>
+                                            <th>用户性别</th>
+                                            <th>邮箱</th>
+                                            <th>头像</th>
+                                            <th>留言</th>
+                                            <th>居住楼层</th>
+                                            <th>有效性</th>
+                                            <th>操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="member: ${members.getList()}">
+                                            <td th:text="${member.id}"></td>
+                                            <td th:text="${member.loginacct}"></td>
+                                            <td th:text="${member.userpswd}"></td>
+                                            <td th:text="${member.username}"></td>
+                                            <td th:text="${member.sex}"></td>
+                                            <td th:text="${member.email}"></td>
+                                            <td>
+                                                <img th:if="${member.headpicPath} != null" th:src="${member.headpicPath}" width="100px" height="50px" class="img-avatar">
+                                            </td>
+                                            <td th:text="${member.message}!=null?(${#strings.length(member.message) > 11}?${member.message.substring(0, 10)} + '......':${member.message}):''"></td>
+                                            <td th:text="${member.address}!=null ? ${member.address}:'' "></td>
+                                            <!--<td th:text="${member.isvalid}"></td>-->
+                                            <td th:switch="${member.isvalid}">
+                                                <span th:case="0" style="color: red;">无效</span>
+                                                <span th:case="1" style="color: green;">有效</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button type="button"
+
+                                                            th:onclick="tableButtonClick(
+                                                            {id:[[${member.id}]],loginacct:[[${member.loginacct}]],userpswd:[[${member.userpswd}]],
+                                                             username:[[${member.username}]],sex:[[${member.sex}]],email:[[${member.email}]],headpicPath:[[${member.headpicPath}]],
+                                                             address:[[${member.address}]],message:[[${member.message}]],isvalid:[[${member.isvalid}]]
+                                                            })"
+                                                            data-whatever="@mdo" class="btn btn-primary btn-xs"
+                                                            data-toggle="modal"
+                                                            data-target="#exampleModal">编辑
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-xs"
+                                                            th:onclick="deleteMember([[${member.id}]]) ">删除
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="pagination">
+                                    <span hidden th:text="${activeId}"></span>
+                                    <li th:class="${members.getPrePage() == 0} ? 'disabled':''"><a
+                                            th:href="${members.getPrePage() == 0} ? 'javascript:return false' : ${members.getPrePage()}">«</a></li>
+                                    <li th:each="i: ${#numbers.sequence(1, members.getPages())}" class=""
+                                        th:classappend="${i == activeId} ? 'active' : ''">
+                                        <a th:href="'/backup/member/manage/' + ${i}" th:text="${i}"></a>
+                                    </li>
+                                    <li th:class="${members.getNextPage() == 0} ? 'disabled':''"><a
+                                            th:href="${members.getNextPage() == 0} ? 'javascript:return false' : ${members.getNextPage()}">»</a>
+                                    </li>
+                                </ul>
+                                <span class="hidden" id="modify-or-delete-page" th:value="${activeId}"></span>
+                                <span class="hidden" id="add-page" th:value="${members.getNavigateLastPage()}"> </span>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+        <!--End 页面主要内容-->
+
+    </div>
+</div>
+<!-- dialog -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">修改</h4>
+            </div>
+            <div class="modal-body" id="dialog-form-container">
+                <form id="update_form">
+                    <input type="hidden" name="id" id="dialog-id"/>
+                    <div class="form-group">
+                        <label for="dialog-loginacct" class="control-label">登录名</label>
+                        <input name="loginacct" type="text" class="form-control" id="dialog-loginacct" readonly
+                               title="管理员不得乱改登录名">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-userpswd" class="control-label">登录密码</label>
+                        <input name="userpswd" type="text" class="form-control" id="dialog-userpswd" readonly
+                               title="管理员不得乱改密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-userName" class="control-label">用户名称</label>
+                        <input name="username" type="text" class="form-control" id="dialog-username">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-sex" class="control-label">用户性别</label>
+                        <select name="sex" class="form-control" id="dialog-sex">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-isvalid" class="control-label">有效性</label>
+                        <select name="isvalid" class="form-control" id="dialog-isvalid">
+                            <option value="0">无效</option>
+                            <option value="1">有效</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-email" class="control-label">邮箱</label>
+                        <input name="email" type="text" class="form-control" id="dialog-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-headpicPath" class="control-label">头像</label>
+                        <input name="headpicPath" type="text" class="form-control" id="dialog-headpicPath" readonly
+                               title="管理员不得私自乱改业主头像">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-address" class="control-label">居住楼层</label>
+                        <input name="address" type="text" class="form-control" id="dialog-address">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-message" class="control-label">留言</label>
+                        <input name="message" type="text" class="form-control" id="dialog-message">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="editDialogData()">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addDialogLabel">新增</h4>
+            </div>
+            <div class="modal-body" id="dialog-form-container-add">
+                <form id="add_form">
+                    <input type="hidden" name="id"/>
+                    <div class="form-group">
+                        <label for="dialog-loginacct" class="control-label">登录名</label>
+                        <input name="loginacct" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-userpswd" class="control-label">登录密码</label>
+                        <input name="userpswd" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-userName" class="control-label">用户名称</label>
+                        <input name="username" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-sex" class="control-label">用户性别</label>
+                        <select name="sex" class="form-control">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-isvalid" class="control-label">有效性</label>
+                        <select name="isvalid" class="form-control">
+                            <option value="1">有效</option>
+                            <option value="0">无效</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-email" class="control-label">邮箱</label>
+                        <input name="email" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-headpicPath" class="control-label">头像</label>
+                        <input name="headpicPath" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-address" class="control-label">居住楼层</label>
+                        <input name="address" type="text" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="dialog-message" class="control-label">留言</label>
+                        <input name="message" type="text" class="form-control">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addMember()">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/backage/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/backage/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/backage/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/backage/js/main.min.js}"></script>
+<!--对话框-->
+<script type="text/javascript" th:src="@{/backage/js/jconfirm/jquery-confirm.min.js}"></script>
+<script type="text/javascript">
+
+    //绑定dialog  表单值
+    let tableButtonClick = function (data) {
+        Object.keys(data).forEach(key => {
+            $("#dialog-" + key).val(data[key])
+        })
+    }
+
+    let deleteMember = function (data) {
+        $.confirm({
+            title: '删除',
+            content: '是否确认删除？',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    action: function () {
+                        $.post("/member/delete/" + data, function (data) {
+                            var page = $('#modify-or-delete-page').attr('value');
+                            window.location.href = "/backup/member/manage/" + page;
+                        });
+                    }
+                },
+                cancel: {
+                    text: '关闭',
+                    action: function () {
+
+                    }
+                }
+            }
+        });
+    }
+    //修改内容
+    let editDialogData = function () {
+        $.post("/member/modify", $("#update_form").serialize(), function (data) {
+            var page = $('#modify-or-delete-page').attr('value');
+            window.location.href = "/backup/member/manage/" + page;
+        });
+        $('#exampleModal').modal('hide');
+    }
+    //新增
+    let addInfoData = function () {
+        $('#addDialog').modal('show')
+    }
+
+    let addMember = function () {
+        $.post("/member/add", $("#add_form").serialize(), function (data) {
+            var page = $('#add-page').attr('value');
+            window.location.href = "/backup/member/manage/" + page
+        });
+        $('#addDialog').modal('hide');
+    }
+
+
+    //在调用 show 方法后触发。
+    // $('#exampleModal').on('show.bs.modal', function (event) {
+    //   console.log(event)
+    // })
+    //当模态框完全对用户隐藏时触发。
+    $('#exampleModal').on('hidden.bs.modal', function (event) {
+        console.log(event)
+        $('#dialog-form-container').find('input').val('')
+    })
+
+</script>
+</body>
+
+</html>

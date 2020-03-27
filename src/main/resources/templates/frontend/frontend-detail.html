@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html>
+<head th:insert="~{commons/frontendpart::head('文章',~{},~{})}"></head>
+
+<body>
+
+<th:block th:insert="~{commons/frontendpart::header(2, null)}"></th:block>
+
+<!-- NAVBAR -->
+
+<div th:insert="~{commons/frontendpart::navbar(~{::div[id='wrapper-sorting']})}">
+    <div id="wrapper-sorting">
+        <div id="wrapper-title-1">
+            <a th:href="@{/go/to/index/1}">
+                <div class="top-rated object">返回首页</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="wrapper-container">
+
+    <div class="container object">
+
+        <div id="main-container-image">
+
+            <div class="title-item">
+                <div class="title-icon">
+                    <!-- 用户的头像 -->
+                    <img width="68px" height="68px" th:src="${detail.memberPO.headpicPath}" />
+                </div>
+                <div class="title-text" th:text="${detail.title}">文章的名字</div>
+                <div class="title-text-2"
+                     th:text="${#dates.format(detail.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-01-01 00:00:00</div>
+            </div>
+            <div class="wrapper-text-description">
+
+                <div class="wrapper-view">
+                    <div class="icon-view">
+                        <i class="fa fa-user-secret" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-view" th:text="${detail.memberPO.username}">用户名</div>
+                </div>
+                <div class="wrapper-desc">
+                    <div class="icon-view">
+                        <i class="fa fa-magic" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-desc" th:text="${detail.memberPO.message}">这里是用户的自身的备注：魔镜啊魔镜啊，谁是天下最骚的人？</div>
+                </div>
+                <div class="wrapper-view">
+                    <div class="icon-view">
+                        <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-view" th:text="${detail.memberPO.email}">用户的邮箱</div>
+                </div>
+                <div class="wrapper-view">
+                    <div class="icon-view">
+                        <i class="fa fa-commenting" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-view">评论：[[${detail.commentCount}]]</div>
+                </div>
+                <div class="wrapper-desc" th:if="${detail.areaId != 4}">
+                    <div class="icon-view">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                    </div>
+                    <div class="text-desc">
+                        附件下载列表
+                        <div class="file-download-list">
+                            <!-- 想细化的话可以加载对应的文件类型的图标 -->
+                            <th:block th:if="${detail.sharingfilePOList != null}" th:each="sharingfilePO:${detail.sharingfilePOList}" th:object="${sharingfilePO}">
+                                <a class="download-item" th:href="*{filepath}" th:attr="download=*{filenname}"
+                                     th:if="*{filetype != 'gif' && filetype != 'jpeg' && filetype != 'jpg' && filetype != 'png' && filetype != 'bmp'
+                                     && filetype != 'avi' && filetype != 'mp4' && filetype != 'mpeg'
+                                     && filetype != 'rar' && filetype != 'zip' && filetype != 'tar'}"
+                                     th:title="*{filenname}">
+                                    <i class="fa fa-file-text" aria-hidden="true"></i>
+                                </a>
+                                <a class="download-item" th:title="*{filenname}"
+                                   th:if="*{filetype == 'gif' || filetype == 'jpeg' || filetype == 'jpg' || filetype == 'png' || filetype == 'bmp'}"
+                                   th:href="*{filepath}" th:attr="download=*{filenname}">
+                                    <i class="fa fa-file-image-o" aria-hidden="true"></i>
+                                </a>
+                                <a class="download-item" th:title="*{filenname}"
+                                     th:if="*{filetype == 'avi' || filetype == 'mp4' || filetype == 'mpeg'}"
+                                     th:href="*{filepath}" th:attr="download=*{filenname}">
+                                    <i class="fa fa-file-video-o" aria-hidden="true"></i>
+                                </a>
+                                <a class="download-item" th:title="*{filenname}"
+                                     th:if="*{filetype == 'rar' || filetype == 'zip' || filetype == 'tar'}"
+                                     th:href="*{filepath}" th:attr="download=*{filenname}">
+                                    <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                                </a>
+                            </th:block>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="acticle-container">
+                <div class="content-info">
+                    <div class="info-text" th:utext="${detail.description}">
+
+                    </div>
+
+                </div>
+                <!-- 评论列表 -->
+                <div class="comment-container">
+                    <h3>评论（[[${detail.commentCount}]]）</h3>
+                    <div class="submit-comment">
+                        <form class="layui-form" action="/comment/add" method="post">
+                            <div class="layui-form-item">
+                                <input hidden name="areaId" th:value="${detail.areaId}">
+                                <input hidden name="belongtoId" th:value="${detail.id}">
+                                <input type="text" style="width: 80%;display: inline-block;" name="content" required
+                                       lay-verify="required" placeholder="友好的发言是交流的开始" autocomplete="off"
+                                       class="layui-input">
+                                <button class="layui-btn" style="background-color: rgb(55, 55, 55);" lay-submit
+                                        lay-filter="formDemo">评论</button>
+                            </div>
+                        </form>
+                    </div>
+                    <span class="hidden" id="comment_type" th:value="${detail.areaId}"></span>
+                    <span class="hidden" id="comment_infoid" th:value="${detail.id}"></span>
+                    <th:block th:if="${detail.commentCount >0}" th:each="parent:${detail.commentsPOList}">
+                        <div class="comment-item" comment-status=true th:attr="parentid=${parent.id}">
+                            <img width="50px" height="50px" th:src="${parent.memberPO.headpicPath}" />
+                            <div class="comment-info">
+                                <a class="comment-time" th:text="${#dates.format(parent.createTime,'yyyy-MM-dd HH:mm:ss')}"></a>
+                                <a class="user-name" th:text="${parent.memberPO.username}"></a><span th:if="${detail.userId} == ${parent.userId}">(作者)</span>
+                                <a class="user-comment" th:text="${parent.content}"></a>
+                            </div>
+                        </div>
+                        <th:block th:insert="~{commons/frontendpart::commentChild(${parent},${detail})}"></th:block>
+                    </th:block>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:insert="~{commons/frontendpart::footer}"></div>
+
+</div>
+
+
+
+<!-- SCRIPT -->
+<th:block th:insert="~{commons/frontendpart::script(~{::script})}">
+    <script>
+        $(document).ready(function () {
+            layui.use('form');
+            $('div[comment-status=true]').bind('click', appendFrom)
+        });
+        function appendFrom(e) {
+            let name = $(this).find('.user-name').text()
+            let type = $('#comment_type').attr('value');
+            let infoId = $('#comment_infoid').attr('value');
+            let parentId = e.currentTarget.getAttribute("parentid");
+            console.log(type)
+            console.log(infoId)
+            console.log(parentId)
+            if ($('#reply-append-form').length > 0) {
+                $("div").remove("#reply-append-form")
+            }
+            let form = `
+            <div class="submit-comment" style="margin-left:10px" id="reply-append-form">
+                <form class="layui-form" action="/comment/add" method="post">
+                    <input hidden name="areaId" value="${type}"/>
+					<input hidden name="belongtoId" value="${infoId}"/>
+					<input hidden name="parentCommentId" value="${parentId}"/>
+                    <div class="layui-form-item">
+                        <input type="text" style="width: 80%;display: inline-block;" name="content" required lay-verify="required" placeholder="回复${name}:"
+                        autocomplete="off" class="layui-input">
+                        <button class="layui-btn" style="background-color: rgb(55, 55, 55);" lay-submit lay-filter="formDemo">回复</button>
+                    </div>
+                </form>
+            </div>
+            `
+            let tepElement = document.createElement('div')
+            tepElement.innerHTML = form
+            let renderDom = tepElement.firstElementChild
+            $(this).after(renderDom)
+        }
+    </script>
+</th:block>
+
+
+</body>
+
+
+</html>
